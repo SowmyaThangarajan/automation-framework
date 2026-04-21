@@ -107,16 +107,16 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 948,
+                      "duration": 716,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:11:55.776Z\",\"method\":\"POST\",\"url\":\"https://dotesthere.com/api/users\",\"status\":400,\"duration\":929,\"body\":{\"error\":\"email and first_name are required\"}}\n"
+                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:43:42.728Z\",\"method\":\"POST\",\"url\":\"https://dotesthere.com/api/users\",\"status\":400,\"duration\":699,\"body\":{\"error\":\"email and first_name are required\"}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T04:11:54.818Z",
+                      "startTime": "2026-04-21T04:43:42.003Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -162,16 +162,16 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1410,
+                      "duration": 766,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:11:56.263Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":1390,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
+                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:43:42.764Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":749,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T04:11:54.846Z",
+                      "startTime": "2026-04-21T04:43:41.990Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -210,12 +210,12 @@
                   "workerIndex": 2,
                   "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 2092,
+                  "duration": 1736,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-04-21T04:11:54.802Z",
+                  "startTime": "2026-04-21T04:43:41.944Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -226,154 +226,6 @@
           "id": "b67ad12d56d005bbcdff-24b8bcbd158c121c04f1",
           "file": "data/data_validation.spec.ts",
           "line": 8,
-          "column": 5
-        }
-      ]
-    },
-    {
-      "title": "integration\\ui-api.spec.ts",
-      "file": "integration/ui-api.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [
-        {
-          "title": "API + UI consistency",
-          "ok": false,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
-                {
-                  "workerIndex": 3,
-                  "parallelIndex": 3,
-                  "status": "failed",
-                  "duration": 4002,
-                  "error": {
-                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
-                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts:11:19",
-                    "location": {
-                      "file": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts",
-                      "column": 19,
-                      "line": 11
-                    },
-                    "snippet": "\u001b[0m \u001b[90m  9 |\u001b[39m   \u001b[36mconst\u001b[39m uiItems \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'.inventory_item'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m   expect(uiItems)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m   expect(apiBody\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                  },
-                  "errors": [
-                    {
-                      "location": {
-                        "file": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts",
-                        "column": 19,
-                        "line": 11
-                      },
-                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m  9 |\u001b[39m   \u001b[36mconst\u001b[39m uiItems \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'.inventory_item'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m   expect(uiItems)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m   expect(apiBody\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts:11:19\u001b[22m"
-                    }
-                  ],
-                  "stdout": [
-                    {
-                      "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:11:55.790Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":734,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
-                    }
-                  ],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-04-21T04:11:54.856Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "screenshot",
-                      "contentType": "image/png",
-                      "path": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\test-results\\integration-ui-api-API-UI-consistency-chromium\\test-failed-1.png"
-                    },
-                    {
-                      "name": "error-context",
-                      "contentType": "text/markdown",
-                      "path": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\test-results\\integration-ui-api-API-UI-consistency-chromium\\error-context.md"
-                    },
-                    {
-                      "name": "trace",
-                      "contentType": "application/zip",
-                      "path": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\test-results\\integration-ui-api-API-UI-consistency-chromium\\trace.zip"
-                    }
-                  ],
-                  "errorLocation": {
-                    "file": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts",
-                    "column": 19,
-                    "line": 11
-                  }
-                },
-                {
-                  "workerIndex": 4,
-                  "parallelIndex": 1,
-                  "status": "failed",
-                  "duration": 887,
-                  "error": {
-                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
-                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts:11:19",
-                    "location": {
-                      "file": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts",
-                      "column": 19,
-                      "line": 11
-                    },
-                    "snippet": "\u001b[0m \u001b[90m  9 |\u001b[39m   \u001b[36mconst\u001b[39m uiItems \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'.inventory_item'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m   expect(uiItems)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m   expect(apiBody\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                  },
-                  "errors": [
-                    {
-                      "location": {
-                        "file": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts",
-                        "column": 19,
-                        "line": 11
-                      },
-                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m  9 |\u001b[39m   \u001b[36mconst\u001b[39m uiItems \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'.inventory_item'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m   expect(uiItems)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m   expect(apiBody\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts:11:19\u001b[22m"
-                    }
-                  ],
-                  "stdout": [
-                    {
-                      "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:12:00.299Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":351,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
-                    }
-                  ],
-                  "stderr": [],
-                  "retry": 1,
-                  "startTime": "2026-04-21T04:11:59.771Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "screenshot",
-                      "contentType": "image/png",
-                      "path": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\test-results\\integration-ui-api-API-UI-consistency-chromium-retry1\\test-failed-1.png"
-                    },
-                    {
-                      "name": "video",
-                      "contentType": "video/webm",
-                      "path": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\test-results\\integration-ui-api-API-UI-consistency-chromium-retry1\\video.webm"
-                    },
-                    {
-                      "name": "error-context",
-                      "contentType": "text/markdown",
-                      "path": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\test-results\\integration-ui-api-API-UI-consistency-chromium-retry1\\error-context.md"
-                    },
-                    {
-                      "name": "trace",
-                      "contentType": "application/zip",
-                      "path": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\test-results\\integration-ui-api-API-UI-consistency-chromium-retry1\\trace.zip"
-                    }
-                  ],
-                  "errorLocation": {
-                    "file": "C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts",
-                    "column": 19,
-                    "line": 11
-                  }
-                }
-              ],
-              "status": "unexpected"
-            }
-          ],
-          "id": "6abd5cde086647c1c9f6-c6c81e0746d3921ead36",
-          "file": "integration/ui-api.spec.ts",
-          "line": 3,
           "column": 5
         }
       ]
@@ -404,15 +256,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 3463,
+                      "duration": 3690,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T04:11:55.801Z",
+                      "startTime": "2026-04-21T04:43:41.922Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -432,11 +284,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-04-21T04:11:53.972Z",
-    "duration": 6897.2970000000005,
+    "startTime": "2026-04-21T04:43:41.127Z",
+    "duration": 4716.51,
     "expected": 4,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

@@ -9,9 +9,10 @@
     "@types/ajv": "^0.0.5",
     "@types/node": "^25.6.0",
     "allure-playwright": "^3.7.1",
+    "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   },
-"scripts": {
-  "quality-gate": "ts-node scripts/quality-gate.ts"
-}
+  "scripts": {
+    "quality-gate": "ts-node scripts/quality-gate.ts"
+  }
 }

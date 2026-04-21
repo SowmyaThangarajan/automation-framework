@@ -63,7 +63,14 @@ jobs:
         with:
           path: reports
 
-      - name: Evaluate Quality Gate
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        working-directory: .
+        run: npm ci
+
+      - name: Run Quality Gate
+        working-directory: .
         run: npm run quality-gate -- reports
 
       - name: Debug - list files
