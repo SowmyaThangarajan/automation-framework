@@ -16,4 +16,6 @@ RUN apt-get update && apt-get install -y python3 python3-pip && \
 
 RUN npx playwright install --with-deps
 
+RUN pip3 install pandas
+
 CMD ["npx", "playwright", "test"]

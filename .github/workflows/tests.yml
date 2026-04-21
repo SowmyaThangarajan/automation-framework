@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Python dependencies
+        run: pip3 install pandas
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
@@ -61,7 +64,7 @@ jobs:
           path: reports
 
       - name: Evaluate Quality Gate
-        run: node scripts/quality-gate.js reports
+        run: npx ts-node scripts/quality-gate.ts reports
 
       - name: Debug - list files
         run: ls -R
