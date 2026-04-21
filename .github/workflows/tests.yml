@@ -52,34 +52,29 @@ jobs:
             playwright-report
             results
 
-  quality-gate:
-    needs: test
-    runs-on: ubuntu-latest
-    if: always()
+quality-gate:
+  needs: test
+  runs-on: ubuntu-latest
+  if: always()
 
-    steps:
-      - name: Download all reports
-        uses: actions/download-artifact@v4
-        with:
-          path: reports
+  steps:
+    - name: Download all reports
+      uses: actions/download-artifact@v4
+      with:
+        path: reports
 
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        working-directory: .
-        run: npm ci
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-      - name: Run Quality Gate
-        working-directory: .
-        run: npm run quality-gate -- results
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Debug - list files
-        run: ls -R
+    - name: Debug downloaded reports
+      run: ls -R reports
 
-      - name: Debug downloaded reports
-        run: |
-          echo "==== FILE TREE ===="
-          ls -R reports || true
-
-      - name: Evaluate Quality Gate
-        run: node scripts/quality-gate.js reports
+    - name: Run Quality Gate
+      run: npx ts-node scripts/quality-gate.ts reports
