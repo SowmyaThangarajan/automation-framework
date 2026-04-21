@@ -72,3 +72,10 @@ jobs:
 
       - name: Run Quality Gate
         run: npx ts-node scripts/quality-gate.ts reports
+
+      - name: Upload Execution Summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-summary
+          path: results/execution-summary.json
