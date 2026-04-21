@@ -71,7 +71,7 @@ jobs:
 
       - name: Run Quality Gate
         working-directory: .
-        run: npm run quality-gate -- reports
+        run: npm run quality-gate -- results
 
       - name: Debug - list files
         run: ls -R
