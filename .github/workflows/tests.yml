@@ -79,3 +79,9 @@ jobs:
         with:
           name: execution-summary
           path: results/execution-summary.json
+
+      - name: Publish Execution Summary
+        if: always()
+        run: |
+          echo "## 📊 Execution Summary" >> $GITHUB_STEP_SUMMARY
+          cat results/execution-summary.json >> $GITHUB_STEP_SUMMARY
