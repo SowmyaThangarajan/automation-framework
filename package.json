@@ -11,7 +11,7 @@
     "allure-playwright": "^3.7.1",
     "typescript": "^6.0.3"
   },
-  "scripts": {
+"scripts": {
   "quality-gate": "ts-node scripts/quality-gate.ts"
 }
 }

@@ -64,7 +64,7 @@ jobs:
           path: reports
 
       - name: Evaluate Quality Gate
-        run: npx ts-node scripts/quality-gate.ts reports
+        run: npm run quality-gate -- reports
 
       - name: Debug - list files
         run: ls -R
