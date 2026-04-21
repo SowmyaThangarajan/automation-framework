@@ -1,0 +1,1 @@
+{"type":"api_log","timestamp":"2026-04-21T02:10:25.918Z","method":"POST","url":"https://dotesthere.com/api/users","status":400,"duration":762,"body":{"error":"email and first_name are required"}}

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "C:\Users\sowmy\VSProjects\automation-framework\data-validation\data_validator.py", line 56, in <module>
+    run(sys.argv[1], sys.argv[2])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sowmy\VSProjects\automation-framework\data-validation\data_validator.py", line 49, in run
+    validate_row_level(api_df, expected_df)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sowmy\VSProjects\automation-framework\data-validation\data_validator.py", line 23, in validate_row_level
+    raise Exception(f"Row-level mismatch:\n{diff}")
+Exception: Row-level mismatch:
+  first_name           last_name       
+        self   other        self  other
+0      Ankur  George  Autoamtion  Bluth

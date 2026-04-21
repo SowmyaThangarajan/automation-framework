@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "page": { "type": "number" },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "number" },
+          "email": { "type": "string" }
+        },
+        "required": ["id", "email"]
+      }
+    }
+  },
+  "required": ["page", "data"]
+}

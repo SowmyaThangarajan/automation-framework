@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "C:\Users\sowmy\VSProjects\automation-framework\data-validation\data_validator.py", line 48, in <module>
+    run(sys.argv[1], sys.argv[2])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sowmy\VSProjects\automation-framework\data-validation\data_validator.py", line 40, in run
+    validate_schema(api_df, expected_df)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sowmy\VSProjects\automation-framework\data-validation\data_validator.py", line 28, in validate_schema
+    raise Exception("Schema mismatch")
+Exception: Schema mismatch

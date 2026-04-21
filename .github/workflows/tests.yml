@@ -1,0 +1,75 @@
+name: Playwright CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]   # parallel execution
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests (sharded)
+        run: npx playwright test --shard=${{ matrix.shard }}/4
+
+      # - name: Upload reports
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: playwright-report-shard-${{ matrix.shard }}
+      #     path: playwright-report
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: |
+            playwright-report
+            results
+
+  quality-gate:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+
+      - name: Evaluate Quality Gate
+        run: node scripts/quality-gate.js reports
+
+      - name: Debug - list files
+        run: ls -R
+
+      - name: Debug downloaded reports
+        run: |
+          echo "==== FILE TREE ===="
+          ls -R reports || true
+
+      - name: Evaluate Quality Gate
+        run: node scripts/quality-gate.js reports
