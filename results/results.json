@@ -107,16 +107,16 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 762,
+                      "duration": 948,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T03:26:47.618Z\",\"method\":\"POST\",\"url\":\"https://dotesthere.com/api/users\",\"status\":400,\"duration\":740,\"body\":{\"error\":\"email and first_name are required\"}}\n"
+                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:11:55.776Z\",\"method\":\"POST\",\"url\":\"https://dotesthere.com/api/users\",\"status\":400,\"duration\":929,\"body\":{\"error\":\"email and first_name are required\"}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T03:26:46.851Z",
+                      "startTime": "2026-04-21T04:11:54.818Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -162,16 +162,16 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 889,
+                      "duration": 1410,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T03:26:47.833Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":866,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
+                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:11:56.263Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":1390,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T03:26:46.934Z",
+                      "startTime": "2026-04-21T04:11:54.846Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -210,12 +210,12 @@
                   "workerIndex": 2,
                   "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 1775,
+                  "duration": 2092,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-04-21T03:26:46.772Z",
+                  "startTime": "2026-04-21T04:11:54.802Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -252,7 +252,7 @@
                   "workerIndex": 3,
                   "parallelIndex": 3,
                   "status": "failed",
-                  "duration": 1494,
+                  "duration": 4002,
                   "error": {
                     "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
                     "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts:11:19",
@@ -275,12 +275,12 @@
                   ],
                   "stdout": [
                     {
-                      "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T03:26:47.993Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":850,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
+                      "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:11:55.790Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":734,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
                     }
                   ],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-04-21T03:26:46.931Z",
+                  "startTime": "2026-04-21T04:11:54.856Z",
                   "annotations": [],
                   "attachments": [
                     {
@@ -309,7 +309,7 @@
                   "workerIndex": 4,
                   "parallelIndex": 1,
                   "status": "failed",
-                  "duration": 875,
+                  "duration": 887,
                   "error": {
                     "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
                     "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at C:\\Users\\sowmy\\VSProjects\\automation-framework\\tests\\integration\\ui-api.spec.ts:11:19",
@@ -332,12 +332,12 @@
                   ],
                   "stdout": [
                     {
-                      "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T03:26:49.938Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":337,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
+                      "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T04:12:00.299Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":351,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
                     }
                   ],
                   "stderr": [],
                   "retry": 1,
-                  "startTime": "2026-04-21T03:26:49.424Z",
+                  "startTime": "2026-04-21T04:11:59.771Z",
                   "annotations": [],
                   "attachments": [
                     {
@@ -407,12 +407,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1074,
+                      "duration": 3463,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T03:26:47.647Z",
+                      "startTime": "2026-04-21T04:11:55.801Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -432,8 +432,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-04-21T03:26:45.988Z",
-    "duration": 4520.387000000001,
+    "startTime": "2026-04-21T04:11:53.972Z",
+    "duration": 6897.2970000000005,
     "expected": 4,
     "skipped": 0,
     "unexpected": 1,

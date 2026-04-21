@@ -1,35 +1,35 @@
-<testsuites id="" name="" tests="5" failures="1" skipped="0" errors="0" time="4.520387">
-<testsuite name="api\users-negative.spec.ts" timestamp="2026-04-21T03:26:46.070Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.762" errors="0">
-<testcase name="User API - Negative Scenarios › Invalid payload" classname="api\users-negative.spec.ts" time="0.762">
+<testsuites id="" name="" tests="5" failures="1" skipped="0" errors="0" time="6.897297000000001">
+<testsuite name="api\users-negative.spec.ts" timestamp="2026-04-21T04:11:54.058Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.948" errors="0">
+<testcase name="User API - Negative Scenarios › Invalid payload" classname="api\users-negative.spec.ts" time="0.948">
 <system-out>
-<![CDATA[{"type":"api_log","timestamp":"2026-04-21T03:26:47.618Z","method":"POST","url":"https://dotesthere.com/api/users","status":400,"duration":740,"body":{"error":"email and first_name are required"}}
+<![CDATA[{"type":"api_log","timestamp":"2026-04-21T04:11:55.776Z","method":"POST","url":"https://dotesthere.com/api/users","status":400,"duration":929,"body":{"error":"email and first_name are required"}}
 ]]>
 </system-out>
 </testcase>
 </testsuite>
-<testsuite name="api\users.spec.ts" timestamp="2026-04-21T03:26:46.070Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.889" errors="0">
-<testcase name="User API - Complete Coverage › GET users - contract + business validation" classname="api\users.spec.ts" time="0.889">
+<testsuite name="api\users.spec.ts" timestamp="2026-04-21T04:11:54.058Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.41" errors="0">
+<testcase name="User API - Complete Coverage › GET users - contract + business validation" classname="api\users.spec.ts" time="1.41">
 <system-out>
-<![CDATA[{"type":"api_log","timestamp":"2026-04-21T03:26:47.833Z","method":"GET","url":"https://dotesthere.com/api/users","status":200,"duration":866,"body":{"page":1,"per_page":10,"total":2,"total_pages":1,"data":[{"id":1,"email":"ankur.automation@dotesthere.com","first_name":"Ankur","last_name":"Autoamtion","avatar":"https://dotesthere.com/img/faces/1-image.jpg"},{"id":2,"email":"janet.weaver@dotesthere.com","first_name":"Janet","last_name":"Weaver","avatar":"https://dotesthere.com/img/faces/2-image.jpg"}]}}
+<![CDATA[{"type":"api_log","timestamp":"2026-04-21T04:11:56.263Z","method":"GET","url":"https://dotesthere.com/api/users","status":200,"duration":1390,"body":{"page":1,"per_page":10,"total":2,"total_pages":1,"data":[{"id":1,"email":"ankur.automation@dotesthere.com","first_name":"Ankur","last_name":"Autoamtion","avatar":"https://dotesthere.com/img/faces/1-image.jpg"},{"id":2,"email":"janet.weaver@dotesthere.com","first_name":"Janet","last_name":"Weaver","avatar":"https://dotesthere.com/img/faces/2-image.jpg"}]}}
 ]]>
 </system-out>
 </testcase>
 </testsuite>
-<testsuite name="data\data_validation.spec.ts" timestamp="2026-04-21T03:26:46.070Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.775" errors="0">
-<testcase name="API data validation with Pandas" classname="data\data_validation.spec.ts" time="1.775">
+<testsuite name="data\data_validation.spec.ts" timestamp="2026-04-21T04:11:54.058Z" hostname="chromium" tests="1" failures="0" skipped="0" time="2.092" errors="0">
+<testcase name="API data validation with Pandas" classname="data\data_validation.spec.ts" time="2.092">
 </testcase>
 </testsuite>
-<testsuite name="integration\ui-api.spec.ts" timestamp="2026-04-21T03:26:46.070Z" hostname="chromium" tests="1" failures="1" skipped="0" time="2.369" errors="0">
-<testcase name="API + UI consistency" classname="integration\ui-api.spec.ts" time="2.369">
+<testsuite name="integration\ui-api.spec.ts" timestamp="2026-04-21T04:11:54.058Z" hostname="chromium" tests="1" failures="1" skipped="0" time="4.889" errors="0">
+<testcase name="API + UI consistency" classname="integration\ui-api.spec.ts" time="4.889">
 <system-out>
-<![CDATA[{"type":"api_log","timestamp":"2026-04-21T03:26:47.993Z","method":"GET","url":"https://dotesthere.com/api/users","status":200,"duration":850,"body":{"page":1,"per_page":10,"total":2,"total_pages":1,"data":[{"id":1,"email":"ankur.automation@dotesthere.com","first_name":"Ankur","last_name":"Autoamtion","avatar":"https://dotesthere.com/img/faces/1-image.jpg"},{"id":2,"email":"janet.weaver@dotesthere.com","first_name":"Janet","last_name":"Weaver","avatar":"https://dotesthere.com/img/faces/2-image.jpg"}]}}
+<![CDATA[{"type":"api_log","timestamp":"2026-04-21T04:11:55.790Z","method":"GET","url":"https://dotesthere.com/api/users","status":200,"duration":734,"body":{"page":1,"per_page":10,"total":2,"total_pages":1,"data":[{"id":1,"email":"ankur.automation@dotesthere.com","first_name":"Ankur","last_name":"Autoamtion","avatar":"https://dotesthere.com/img/faces/1-image.jpg"},{"id":2,"email":"janet.weaver@dotesthere.com","first_name":"Janet","last_name":"Weaver","avatar":"https://dotesthere.com/img/faces/2-image.jpg"}]}}
 
 [[ATTACHMENT|..\test-results\integration-ui-api-API-UI-consistency-chromium\test-failed-1.png]]
 
 [[ATTACHMENT|..\test-results\integration-ui-api-API-UI-consistency-chromium\error-context.md]]
 
 [[ATTACHMENT|..\test-results\integration-ui-api-API-UI-consistency-chromium\trace.zip]]
-{"type":"api_log","timestamp":"2026-04-21T03:26:49.938Z","method":"GET","url":"https://dotesthere.com/api/users","status":200,"duration":337,"body":{"page":1,"per_page":10,"total":2,"total_pages":1,"data":[{"id":1,"email":"ankur.automation@dotesthere.com","first_name":"Ankur","last_name":"Autoamtion","avatar":"https://dotesthere.com/img/faces/1-image.jpg"},{"id":2,"email":"janet.weaver@dotesthere.com","first_name":"Janet","last_name":"Weaver","avatar":"https://dotesthere.com/img/faces/2-image.jpg"}]}}
+{"type":"api_log","timestamp":"2026-04-21T04:12:00.299Z","method":"GET","url":"https://dotesthere.com/api/users","status":200,"duration":351,"body":{"page":1,"per_page":10,"total":2,"total_pages":1,"data":[{"id":1,"email":"ankur.automation@dotesthere.com","first_name":"Ankur","last_name":"Autoamtion","avatar":"https://dotesthere.com/img/faces/1-image.jpg"},{"id":2,"email":"janet.weaver@dotesthere.com","first_name":"Janet","last_name":"Weaver","avatar":"https://dotesthere.com/img/faces/2-image.jpg"}]}}
 
 [[ATTACHMENT|..\test-results\integration-ui-api-API-UI-consistency-chromium-retry1\test-failed-1.png]]
 
@@ -106,8 +106,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="ui\purchase.spec.ts" timestamp="2026-04-21T03:26:46.070Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.074" errors="0">
-<testcase name="E-Commerce Core Flows › User can complete E2E Purchase Flow with static account" classname="ui\purchase.spec.ts" time="1.074">
+<testsuite name="ui\purchase.spec.ts" timestamp="2026-04-21T04:11:54.058Z" hostname="chromium" tests="1" failures="0" skipped="0" time="3.463" errors="0">
+<testcase name="E-Commerce Core Flows › User can complete E2E Purchase Flow with static account" classname="ui\purchase.spec.ts" time="3.463">
 </testcase>
 </testsuite>
 </testsuites>
