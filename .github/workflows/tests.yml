@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]   # parallel execution
+        shard: [1, 2, 3, 4]
 
     steps:
       - name: Checkout code
@@ -36,13 +36,6 @@ jobs:
       - name: Run Playwright tests (sharded)
         run: npx playwright test --shard=${{ matrix.shard }}/4
 
-      # - name: Upload reports
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: playwright-report-shard-${{ matrix.shard }}
-      #     path: playwright-report
-
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,29 +45,29 @@ jobs:
             playwright-report
             results
 
-quality-gate:
-  needs: test
-  runs-on: ubuntu-latest
-  if: always()
+  quality-gate:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
 
-  steps:
-    - name: Download all reports
-      uses: actions/download-artifact@v4
-      with:
-        path: reports
+    steps:
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
 
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Debug downloaded reports
-      run: ls -R reports
+      - name: Debug downloaded reports
+        run: ls -R reports
 
-    - name: Run Quality Gate
-      run: npx ts-node scripts/quality-gate.ts reports
+      - name: Run Quality Gate
+        run: npx ts-node scripts/quality-gate.ts reports
