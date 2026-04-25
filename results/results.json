@@ -107,16 +107,16 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 867,
+                      "duration": 1602,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T05:07:00.722Z\",\"method\":\"POST\",\"url\":\"https://dotesthere.com/api/users\",\"status\":400,\"duration\":844,\"body\":{\"error\":\"email and first_name are required\"}}\n"
+                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T07:13:03.253Z\",\"method\":\"POST\",\"url\":\"https://dotesthere.com/api/users\",\"status\":400,\"duration\":1577,\"body\":{\"error\":\"email and first_name are required\"}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T05:06:59.850Z",
+                      "startTime": "2026-04-21T07:13:01.639Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -162,16 +162,16 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1251,
+                      "duration": 1844,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T05:07:01.114Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":1232,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
+                          "text": "{\"type\":\"api_log\",\"timestamp\":\"2026-04-21T07:13:03.541Z\",\"method\":\"GET\",\"url\":\"https://dotesthere.com/api/users\",\"status\":200,\"duration\":1821,\"body\":{\"page\":1,\"per_page\":10,\"total\":2,\"total_pages\":1,\"data\":[{\"id\":1,\"email\":\"ankur.automation@dotesthere.com\",\"first_name\":\"Ankur\",\"last_name\":\"Autoamtion\",\"avatar\":\"https://dotesthere.com/img/faces/1-image.jpg\"},{\"id\":2,\"email\":\"janet.weaver@dotesthere.com\",\"first_name\":\"Janet\",\"last_name\":\"Weaver\",\"avatar\":\"https://dotesthere.com/img/faces/2-image.jpg\"}]}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T05:06:59.855Z",
+                      "startTime": "2026-04-21T07:13:01.675Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -210,12 +210,12 @@
                   "workerIndex": 2,
                   "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 4699,
+                  "duration": 2350,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-04-21T05:06:59.767Z",
+                  "startTime": "2026-04-21T07:13:01.550Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -259,12 +259,12 @@
                       "workerIndex": 3,
                       "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 3630,
+                      "duration": 3745,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-21T05:06:59.744Z",
+                      "startTime": "2026-04-21T07:13:01.551Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -284,8 +284,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-04-21T05:06:58.930Z",
-    "duration": 5684.9400000000005,
+    "startTime": "2026-04-21T07:13:00.670Z",
+    "duration": 4935.022,
     "expected": 4,
     "skipped": 0,
     "unexpected": 0,
