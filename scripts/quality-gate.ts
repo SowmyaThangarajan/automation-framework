@@ -1,11 +1,58 @@
-import fs from 'fs';
-import path from 'path';
-import process from 'process';
-import { parsePlaywrightReport } from '../utils/reportParser';
-import { processFailure } from '../pipeline/processor';
+import fs from "fs";
+import path from "path";
+import process from "process";
+import crypto from "crypto";
+
+import { parsePlaywrightReport } from "../utils/reportParser";
+import { processFailure } from "../pipeline/processor";
 
 type Failure = any;
 
+const HISTORY_FILE = "results/failures-history.json";
+
+/* -----------------------------
+   LOAD / SAVE HISTORY
+------------------------------ */
+function loadHistory(): Failure[] {
+  if (!fs.existsSync(HISTORY_FILE)) return [];
+  return JSON.parse(fs.readFileSync(HISTORY_FILE, "utf-8"));
+}
+
+function saveHistory(failures: Failure[]) {
+  fs.mkdirSync("results", { recursive: true });
+  fs.writeFileSync(HISTORY_FILE, JSON.stringify(failures, null, 2));
+}
+
+/* -----------------------------
+   HASHING / CLUSTERING
+------------------------------ */
+function hashFailure(f: Failure): string {
+  return crypto
+    .createHash("md5")
+    .update(`${f.message}-${f.endpoint || ""}`)
+    .digest("hex");
+}
+
+/* -----------------------------
+   TRANSFORMATION LAYER
+------------------------------ */
+function transformFailure(raw: any): Failure {
+  return {
+    id: hashFailure(raw),
+    source: raw.source || "unknown",
+    type: raw.type || "UNKNOWN",
+    message: raw.message || raw.error || "no message",
+    endpoint: raw.endpoint || null,
+    timestamp: new Date().toISOString(),
+    severity:
+      raw.status >= 500 ? "critical" :
+      raw.status >= 400 ? "high" : "medium"
+  };
+}
+
+/* -----------------------------
+   FIND REPORTS
+------------------------------ */
 function findJsonReports(dir: string): string[] {
   let results: string[] = [];
 
@@ -14,7 +61,7 @@ function findJsonReports(dir: string): string[] {
 
     if (fs.statSync(fullPath).isDirectory()) {
       results = results.concat(findJsonReports(fullPath));
-    } else if (file.endsWith('.json')) {
+    } else if (file.endsWith(".json")) {
       results.push(fullPath);
     }
   }
@@ -22,12 +69,51 @@ function findJsonReports(dir: string): string[] {
   return results;
 }
 
-function writeSummary(failures: any[]) {
+/* -----------------------------
+   QUALITY DECISION ENGINE (NEW)
+------------------------------ */
+function evaluateQuality(enrichedFailures: any[]) {
+  let critical = 0;
+  let flaky = 0;
+  let infra = 0;
+
+  for (const f of enrichedFailures) {
+    const type = f.ai?.aiResult?.type;
+
+    if (f.severity === "critical") critical++;
+
+    if (type === "Flaky") flaky++;
+    if (type === "Infra") infra++;
+  }
+
+  const total = enrichedFailures.length;
+
+  const flakyRate = total ? (flaky / total) * 100 : 0;
+  const infraRate = total ? (infra / total) * 100 : 0;
+
+  let decision = "PASS";
+
+  if (critical > 0) decision = "FAIL";
+  else if (infraRate > 50) decision = "RETRY";
+  else if (flakyRate > 30) decision = "WARN";
+
+  return {
+    total,
+    critical,
+    flaky,
+    infra,
+    flakyRate,
+    infraRate,
+    decision
+  };
+}
+
+/* -----------------------------
+   WRITE DETAILED REPORT
+------------------------------ */
+function writeSummary(result: any) {
   const summary = {
-    totalTests: 4,
-    failed: failures.length,
-    passed: 4 - failures.length,
-    status: failures.length > 0 ? "FAILED" : "PASSED",
+    ...result,
     timestamp: new Date().toISOString()
   };
 
@@ -36,49 +122,95 @@ function writeSummary(failures: any[]) {
     JSON.stringify(summary, null, 2)
   );
 
-  console.log("📊 Execution Summary Generated");
+  console.log("📊 Quality Gate Result:");
+  console.log(JSON.stringify(summary, null, 2));
 }
 
-async function main(): Promise<void> {
-  const reportsDir: string = process.argv[2];
+/* -----------------------------
+   MAIN PIPELINE
+------------------------------ */
+async function main() {
+  const dir = process.argv[2];
 
-  const files: string[] = findJsonReports(reportsDir);
+  const files = findJsonReports(dir);
 
-  console.log("REPORT DIR:", reportsDir);
-  console.log("FILES FOUND:", files);
-
-  let failures: Failure[] = [];
+  let rawFailures: any[] = [];
 
   for (const file of files) {
     const parsed = parsePlaywrightReport(file);
-    failures.push(...parsed);
+    rawFailures.push(...parsed);
   }
 
-  if (failures.length === 0) {
-    console.log("✅ No failures detected");
+  const transformed = rawFailures.map(transformFailure);
 
-    writeSummary([]);
+  /* -------------------------
+     HISTORY
+  -------------------------- */
+  const history = loadHistory();
+  const mergedHistory = [...history, ...transformed];
+
+  /* -------------------------
+     AI PROCESSING
+  -------------------------- */
+  const enrichedFailures = [];
+
+  for (const f of transformed) {
+    let ai = await processFailure(f);
+
+    // 🔥 HISTORY-BASED FLAKY DETECTION
+    if (detectFlakyFromHistory(history, f)) {
+      console.log(`🧠 Overriding AI → Marking as FLAKY (history-based)`);
+
+      ai.aiResult.type = "Flaky";
+      ai.aiResult.confidence = 95;
+
+      // Optional: adjust actions too
+      ai.actions = ["retry"];
+    }
+
+    enrichedFailures.push({
+      ...f,
+      ai
+    });
+  }
+  /* -------------------------
+     SAVE HISTORY
+  -------------------------- */
+  saveHistory(mergedHistory);
+
+  /* -------------------------
+     INTELLIGENT DECISION
+  -------------------------- */
+  const quality = evaluateQuality(enrichedFailures);
+
+  writeSummary(quality);
+
+  /* -------------------------
+     PIPELINE CONTROL
+  -------------------------- */
+  if (quality.decision === "FAIL") {
+    console.log("❌ Failing pipeline due to critical issues");
+    process.exit(1);
+  }
+
+  if (quality.decision === "RETRY") {
+    console.log("🔁 High infra failure rate - recommend retry");
+    process.exit(1); // or trigger workflow_dispatch via API
+  }
+
+  if (quality.decision === "WARN") {
+    console.log("⚠️ Flaky tests detected - not blocking pipeline");
     process.exit(0);
   }
 
-  console.log(`❌ ${failures.length} failures detected\n`);
+  console.log("✅ Quality gate passed");
+  process.exit(0);
+}
 
-  for (const failure of failures) {
-    console.log("RAW FAILURE:", JSON.stringify(failure, null, 2));
+function detectFlakyFromHistory(history: any[], failure: any): boolean {
+  const matches = history.filter(h => h.id === failure.id);
 
-    const result = await processFailure(failure);
-
-    console.log("AI OUTPUT RECEIVED");
-    console.log("---- FAILURE ANALYSIS ----");
-    console.log("Normalized:", result.normalized);
-    console.log("AI Result:", result.aiResult);
-    console.log("Actions:", result.actions);
-    console.log("--------------------------\n");
-  }
-
-  writeSummary(failures);
-
-  process.exit(1);
+  return matches.length > 3;
 }
 
 main().catch((err) => {

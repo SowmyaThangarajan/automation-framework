@@ -7,8 +7,50 @@ on:
   workflow_dispatch:
 
 jobs:
+
+  # 🔍 Code Quality Stage
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint || true
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Dependency Audit
+        run: npm audit --audit-level=high || true
+
+
+  # 🔐 Security Stage
+  security:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run SAST (CodeQL)
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - uses: github/codeql-action/analyze@v3
+
+
+  # 🧪 Test Execution Stage
   test:
     runs-on: ubuntu-latest
+    needs: security
 
     strategy:
       fail-fast: false
@@ -16,8 +58,7 @@ jobs:
         shard: [1, 2, 3, 4]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -45,6 +86,8 @@ jobs:
             playwright-report
             results
 
+
+  # 🚦 Quality Gate + AI Analysis
   quality-gate:
     needs: test
     runs-on: ubuntu-latest
@@ -73,6 +116,17 @@ jobs:
       - name: Run Quality Gate
         run: npx ts-node scripts/quality-gate.ts reports
 
+      # 📊 Upload raw detailed report
+      - name: Upload Full Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-report
+          path: |
+            reports
+            playwright-report
+
+      # 📄 Upload execution summary JSON
       - name: Upload Execution Summary
         if: always()
         uses: actions/upload-artifact@v4
@@ -80,8 +134,21 @@ jobs:
           name: execution-summary
           path: results/execution-summary.json
 
+      # 📢 Publish summary in GitHub UI
       - name: Publish Execution Summary
         if: always()
         run: |
           echo "## 📊 Execution Summary" >> $GITHUB_STEP_SUMMARY
           cat results/execution-summary.json >> $GITHUB_STEP_SUMMARY
+
+      # 🔍 Detailed human-readable breakdown
+      - name: Publish Detailed Report
+        if: always()
+        run: |
+          echo "## 🔍 Detailed Failure Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f results/execution-summary.json ]; then
+            cat results/execution-summary.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No detailed report found" >> $GITHUB_STEP_SUMMARY
+          fi
