@@ -31,11 +31,11 @@ jobs:
       - name: Dependency Audit
         run: npm audit --audit-level=high || true
 
+
   # 🔐 Security Stage
   security:
     runs-on: ubuntu-latest
     needs: quality
-    if: github.event.pull_request.head.repo.fork == false
 
     permissions:
       contents: read
@@ -80,6 +80,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Set shard index
+        run: echo "PW_TEST_SHARD_INDEX=${{ matrix.shard }}" >> $GITHUB_ENV
+
       - name: Run Playwright tests (sharded)
         run: npx playwright test --shard=${{ matrix.shard }}/4
 
@@ -122,39 +125,50 @@ jobs:
       - name: Run Quality Gate
         run: npx ts-node scripts/quality-gate.ts reports
 
-      # 📊 Upload raw detailed report
+
+      # 📊 Upload full report
       - name: Upload Full Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: full-report
-          path: |
-            reports
-            playwright-report
+          path: reports
 
-      # 📄 Upload execution summary JSON
+
+      # 📄 Upload execution summary (FIXED PATH)
       - name: Upload Execution Summary
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: execution-summary
-          path: results/execution-summary.json
+          path: reports/execution-summary.json
 
-      # 📢 Publish summary in GitHub UI
+
+      # 📢 GitHub Summary (FIXED PATH)
       - name: Publish Execution Summary
         if: always()
         run: |
           echo "## 📊 Execution Summary" >> $GITHUB_STEP_SUMMARY
-          cat results/execution-summary.json >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
-      # 🔍 Detailed human-readable breakdown
+          if [ -f reports/execution-summary.json ]; then
+            cat reports/execution-summary.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No execution summary found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+
+      # 🔍 Detailed Report (FIXED PATH + SAFE)
       - name: Publish Detailed Report
         if: always()
         run: |
           echo "## 🔍 Detailed Failure Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -f results/execution-summary.json ]; then
-            cat results/execution-summary.json >> $GITHUB_STEP_SUMMARY
+
+          FILE=$(find reports -name "execution-summary.json" | head -n 1)
+
+          if [ -f "$FILE" ]; then
+            cat "$FILE" >> $GITHUB_STEP_SUMMARY
           else
             echo "No detailed report found" >> $GITHUB_STEP_SUMMARY
           fi
