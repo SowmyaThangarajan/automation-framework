@@ -24,7 +24,9 @@ function getAllJsonFiles(folder: string): string[] {
 }
 
 let total = 0;
+let passed = 0;
 let failed = 0;
+let skipped = 0;
 
 const files = getAllJsonFiles(dir);
 
@@ -32,35 +34,36 @@ for (const file of files) {
   try {
     const data = JSON.parse(fs.readFileSync(file, "utf-8"));
 
-    // Playwright JSON format
-    const tests = data?.suites || [];
+    // ✅ Playwright official stats (MOST RELIABLE)
+    if (data.stats) {
+      total +=
+        (data.stats.expected || 0) +
+        (data.stats.unexpected || 0) +
+        (data.stats.flaky || 0);
 
-    function countTests(suites: any[]): number {
-      let count = 0;
-
-      for (const s of suites) {
-        if (s.specs) count += s.specs.length;
-        if (s.suites) count += countTests(s.suites);
-      }
-
-      return count;
+      passed += data.stats.expected || 0;
+      failed += data.stats.unexpected || 0;
+      skipped += data.stats.skipped || 0;
     }
-
-    total += countTests(tests);
-
   } catch (e) {
     console.log("Skipping invalid JSON:", file);
   }
 }
 
+const flakyRate = total ? (failed / total) * 100 : 0;
+const infraRate = 0; // placeholder unless you classify infra separately
+
 const summary = {
   total,
-  critical: 0,
+  passed,
+  failed,
+  skipped,
+  critical: failed, // optional mapping
   flaky: 0,
   infra: 0,
-  flakyRate: 0,
-  infraRate: 0,
-  decision: total > 0 ? "PASS" : "FAIL",
+  flakyRate,
+  infraRate,
+  decision: failed > 0 ? "FAIL" : "PASS",
   timestamp: new Date().toISOString()
 };
 

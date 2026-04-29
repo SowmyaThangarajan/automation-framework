@@ -23,11 +23,9 @@ export default defineConfig({
 
   /* 3. Reporting */
   reporter: [
-    ['html'],
     ['list'],
-    ['json', { outputFile: `results/results-${shardIndex}.json` }],
-    ['junit', { outputFile: `results/results-${shardIndex}.xml` }],
-    ['allure-playwright']
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['json', { outputFile: `results/results-${process.env.PW_TEST_SHARD_INDEX}.json` }]
   ],
 
   timeout: process.env.CI ? 15000 : 30000,
