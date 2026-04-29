@@ -6,7 +6,7 @@
 
     "types": ["node", "@playwright/test"],
 
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "esModuleInterop": true,
 
