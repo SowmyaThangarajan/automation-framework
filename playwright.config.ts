@@ -7,7 +7,7 @@ import path from 'path';
  */
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-// Ensure shard index is always defined (fallback to 'local')
+// ✅ Define ONCE outside config
 const shardIndex = process.env.PW_TEST_SHARD_INDEX || 'local';
 
 export default defineConfig({
@@ -24,8 +24,23 @@ export default defineConfig({
   /* 3. Reporting */
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    ['json', { outputFile: `results/results-${process.env.PW_TEST_SHARD_INDEX}.json` }]
+
+    // ✅ Unique HTML report per shard
+    [
+      'html',
+      {
+        outputFolder: `playwright-report-${shardIndex}`,
+        open: 'never'
+      }
+    ],
+
+    // ✅ Unique JSON report per shard
+    [
+      'json',
+      {
+        outputFile: `results/results-${shardIndex}.json`
+      }
+    ]
   ],
 
   timeout: process.env.CI ? 15000 : 30000,
@@ -48,6 +63,5 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    // Add more browsers if needed
   ],
 });
