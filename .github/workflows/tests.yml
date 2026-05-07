@@ -6,12 +6,17 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  CI: true
 
 jobs:
 
+  # =========================================================
   # 🔍 CODE QUALITY
+  # =========================================================
   quality:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,18 +25,18 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pandas          
+          pip install pandas
 
       - name: Lint
         run: npm run lint || true
@@ -43,10 +48,13 @@ jobs:
         run: npm audit --audit-level=high || true
 
 
+  # =========================================================
   # 🔐 SECURITY
+  # =========================================================
   security:
     runs-on: ubuntu-latest
     needs: quality
+
     permissions:
       contents: read
       security-events: write
@@ -63,10 +71,13 @@ jobs:
       - uses: github/codeql-action/analyze@v3
 
 
-  # 🧪 TEST EXECUTION (SHARDED)
+  # =========================================================
+  # 🧪 PLAYWRIGHT TESTS (SHARDED)
+  # =========================================================
   test:
     runs-on: ubuntu-latest
     needs: security
+
     strategy:
       fail-fast: false
       matrix:
@@ -80,35 +91,71 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run Playwright tests (sharded)
-        run: npx playwright test --shard=${{ matrix.shard }}/4
+      # ✅ IMPORTANT
+      - name: Run Playwright Tests
+        env:
+          PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
+        run: |
+          npx playwright test --shard=${{ matrix.shard }}/4
 
-      - name: Upload shard artifacts
+      # ✅ DEBUG
+      - name: Debug Generated Files
+        if: always()
+        run: |
+          echo "==== PLAYWRIGHT REPORTS ===="
+          find . -type d -name "playwright-report*"
+
+          echo ""
+          echo "==== BLOB REPORTS ===="
+          find . -type d -name "blob-report*"
+
+          echo ""
+          echo "==== RESULTS ===="
+          find results -type f || true
+
+      # ✅ UPLOAD ARTIFACTS
+      - name: Upload Shard Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shard-${{ matrix.shard }}
           path: |
+            blob-report-*/
             playwright-report-*/
             results/
-            blob-report-*/
+          if-no-files-found: warn
 
 
+  # =========================================================
   # 🚦 QUALITY GATE + AI ANALYSIS
+  # =========================================================
   quality-gate:
-    needs: test
     runs-on: ubuntu-latest
+    needs: test
     if: always()
 
     steps:
 
-      - name: Download artifacts
+      # =====================================================
+      # DOWNLOAD
+      # =====================================================
+      - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
           path: reports
@@ -123,17 +170,106 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Debug reports
+      # =====================================================
+      # DEBUG
+      # =====================================================
+      - name: Debug Downloaded Reports
         run: |
-          echo "==== STRUCTURE ===="
+          echo "==== DIRECTORY STRUCTURE ===="
           find reports -maxdepth 5 -type d
+
           echo ""
           echo "==== FILES ===="
           find reports -type f
 
-      - name: Generate AI Bug Report
-        run: npx ts-node utils/processReports.ts reports
+      # =====================================================
+      # COPY BLOB REPORTS INTO SINGLE DIR
+      # =====================================================
+      - name: Prepare Blob Reports
+        run: |
+          mkdir -p all-blob-reports
 
+          find reports -type d -name "blob-report*" -exec cp -r {}/* all-blob-reports/ \;
+
+          echo "==== MERGE INPUT ===="
+          find all-blob-reports
+
+      # =====================================================
+      # MERGE PLAYWRIGHT REPORTS
+      # =====================================================
+      - name: Merge Playwright Reports
+        run: |
+          npx playwright merge-reports \
+            --reporter html \
+            ./all-blob-reports
+
+      # =====================================================
+      # VERIFY REPORT
+      # =====================================================
+      - name: Verify Merged Report
+        run: |
+          echo "==== PLAYWRIGHT REPORT ===="
+          ls -R playwright-report || true
+
+      # =====================================================
+      # GENERATE AI BUG REPORT
+      # =====================================================
+      - name: Generate AI Bug Report
+        run: |
+          mkdir -p reports/ai
+          npx ts-node utils/processReports.ts reports
+
+      # =====================================================
+      # GENERATE EXECUTION SUMMARY
+      # =====================================================
+      - name: Generate Execution Summary
+        run: |
+          mkdir -p reports
+
+          node -e "
+            const fs = require('fs');
+
+            const summary = {
+              generatedAt: new Date().toISOString(),
+              shards: [],
+              totalPassed: 0,
+              totalFailed: 0
+            };
+
+            function scan(dir) {
+              const files = fs.readdirSync(dir, { withFileTypes: true });
+
+              for (const f of files) {
+                const full = dir + '/' + f.name;
+
+                if (f.isDirectory()) {
+                  scan(full);
+                } else if (f.name.endsWith('.json') && full.includes('results-')) {
+
+                  try {
+                    const data = JSON.parse(fs.readFileSync(full, 'utf8'));
+
+                    summary.shards.push(full);
+
+                    summary.totalPassed += data.stats?.expected || 0;
+                    summary.totalFailed += data.stats?.unexpected || 0;
+
+                  } catch {}
+                }
+              }
+            }
+
+            scan('reports');
+
+            fs.writeFileSync(
+              'reports/execution-summary.json',
+              JSON.stringify(summary, null, 2)
+            );
+          "
+
+      # =====================================================
+      # PUBLISH AI SUMMARY
+      # =====================================================
       - name: Publish AI Summary
         if: always()
         run: |
@@ -141,36 +277,56 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f reports/ai/bug-report.json ]; then
-            node -e "
-              const r = require('./reports/ai/bug-report.json');
-
-              console.log('Total Failures:', r.totalFailures);
-              console.log('Generated:', r.generatedAt);
-
-              for (const b of r.bugs) {
-                console.log('\n---');
-                console.log('Title:', b.bugTitle);
-                console.log('Type:', b.aiResult.type);
-                console.log('Confidence:', b.aiResult.confidence);
-                console.log('Reason:', b.aiResult.reason);
-                console.log('Severity:', b.severity);
-              }
-            " >> $GITHUB_STEP_SUMMARY
+            cat reports/ai/bug-report.json >> $GITHUB_STEP_SUMMARY
           else
-            echo "No bug report generated" >> $GITHUB_STEP_SUMMARY
+            echo "No AI bug report generated" >> $GITHUB_STEP_SUMMARY
           fi
 
+      # =====================================================
+      # PUBLISH EXECUTION SUMMARY
+      # =====================================================
+      - name: Publish Execution Summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f reports/execution-summary.json ]; then
+            cat reports/execution-summary.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No execution summary generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # =====================================================
+      # UPLOAD PLAYWRIGHT REPORT
+      # =====================================================
       - name: Upload Full Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: full-report
-          path: reports/
+          name: playwright-html-report
+          path: playwright-report/
+          if-no-files-found: warn
 
+      # =====================================================
+      # UPLOAD AI REPORT
+      # =====================================================
       - name: Upload AI Bug Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ai-bug-report
           path: reports/ai/bug-report.json
+          if-no-files-found: warn
+
+      # =====================================================
+      # UPLOAD EXECUTION SUMMARY
+      # =====================================================
+      - name: Upload Execution Summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-summary
+          path: reports/execution-summary.json
           if-no-files-found: warn

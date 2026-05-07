@@ -1,25 +1,31 @@
-import { extractFailures } from '../utils/extractFailures';
-import { analyzeFailure } from '../ai/analyzer';
 import fs from 'fs';
+import path from 'path';
+
+import { extractFailures } from './extractFailures';
+import { analyzeFailure } from '../ai/analyzer';
 
 export async function processReports(reportPath: string) {
   const failures = extractFailures(reportPath);
 
   const bugs = await Promise.all(
-    failures.map(async (f) => {
-      const ai = await analyzeFailure(f);
+    failures.map(async (failure: any) => {
+      const aiResult = await analyzeFailure(failure);
 
       return {
-        ...f,
-        aiResult: ai,
-        bugTitle: generateBugTitle(f, ai),
-        severity: mapSeverity(ai),
-        stepsToReproduce: f.stack || 'Check trace logs',
+        bugTitle: failure.title,
+        error: failure.error,
+        aiResult,
+        severity:
+          aiResult.confidence > 90
+            ? 'HIGH'
+            : aiResult.confidence > 70
+            ? 'MEDIUM'
+            : 'LOW'
       };
     })
   );
 
-  const output = {
+  const finalReport = {
     totalFailures: bugs.length,
     generatedAt: new Date().toISOString(),
     bugs
@@ -29,19 +35,15 @@ export async function processReports(reportPath: string) {
 
   fs.writeFileSync(
     'reports/ai/bug-report.json',
-    JSON.stringify(output, null, 2)
+    JSON.stringify(finalReport, null, 2)
   );
 
-  return output;
+  console.log('✅ AI bug report generated');
+
+  return finalReport;
 }
 
-function generateBugTitle(f: any, ai: any) {
-  return `[${ai.type}] ${f.title}`;
-}
+// CLI support
+const reportPath = process.argv[2] || 'reports';
 
-function mapSeverity(ai: any) {
-  if (ai.type === 'Infra') return 'medium';
-  if (ai.type === 'API Regression') return 'high';
-  if (ai.type === 'Data Issue') return 'critical';
-  return 'low';
-}
+processReports(reportPath);
