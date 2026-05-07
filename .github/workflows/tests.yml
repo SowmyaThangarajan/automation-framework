@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Setup Python env
         run: |
           python3 -m pip install pandas
@@ -100,94 +100,85 @@ jobs:
 
 
 # 🚦 QUALITY GATE + AI ANALYSIS
-  quality-gate:
-    needs: test
-    runs-on: ubuntu-latest
-    if: always()
+quality-gate:
+  needs: test
+  runs-on: ubuntu-latest
+  if: always()
 
-    steps:
+  steps:
 
-      # 📥 Download all shard outputs
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: reports
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: reports
 
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-      - name: Install dependencies
-        run: npm ci
-
-
-      # 🔍 Debug structure
-      - name: Debug reports
-        run: |
-          echo "==== REPORT STRUCTURE ===="
-          find reports -maxdepth 4 -type d
-          echo ""
-          echo "==== FILES ===="
-          find reports -type f
+    - name: Install dependencies
+      run: npm ci
 
 
-      # 🧪 Merge Playwright reports
-      - name: Merge Playwright Reports
-        run: npx playwright merge-reports --reporter html reports || true
+    # 🔍 Debug
+    - name: Debug reports
+      run: |
+        echo "==== STRUCTURE ===="
+        find reports -maxdepth 5 -type d
+        echo ""
+        echo "==== FILES ===="
+        find reports -type f
 
 
-      # 🤖 GENERATE AI BUG REPORT
-      - name: Generate AI Bug Report
-        run: npx ts-node scripts/generate-bug-report.ts
+    # 🧠 STEP 1: Extract + AI analysis + generate bug report
+    - name: Generate AI Bug Report
+      run: npx ts-node scripts/processReports.ts reports
 
 
-      # 📊 Publish GitHub Summary (AI OUTPUT)
-      - name: Publish AI Bug Report
-        if: always()
-        run: |
-          echo "## 🤖 AI Bug Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+    # 📊 STEP 2: Show summary in GitHub UI
+    - name: Publish AI Summary
+      if: always()
+      run: |
+        echo "## 🤖 AI Bug Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f reports/bug-report.json ]; then
-            node -e "
-              const r = require('./reports/bug-report.json');
+        if [ -f reports/ai/bug-report.json ]; then
+          node -e "
+            const r = require('./reports/ai/bug-report.json');
 
-              console.log('Total Failures:', r.totalFailures);
-              console.log('Generated:', r.generatedAt);
+            console.log('Total Failures:', r.totalFailures);
+            console.log('Generated:', r.generatedAt);
 
-              for (const b of r.bugs) {
-                console.log('\n---');
-                console.log('Title:', b.bugTitle);
-                console.log('Type:', b.ai.type);
-                console.log('Severity:', b.severity);
-                console.log('Reason:', b.ai.reason);
-              }
-            " >> $GITHUB_STEP_SUMMARY
-          else
-            echo "No bug report generated" >> $GITHUB_STEP_SUMMARY
-          fi
-
-
-      # 📦 Upload final artifacts
-      - name: Upload Full Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: full-report
-          path: |
-            playwright-report/
-            reports/
-          if-no-files-found: warn
+            for (const b of r.bugs) {
+              console.log('\n---');
+              console.log('Title:', b.bugTitle);
+              console.log('Type:', b.aiResult.type);
+              console.log('Confidence:', b.aiResult.confidence);
+              console.log('Reason:', b.aiResult.reason);
+              console.log('Severity:', b.severity);
+            }
+          " >> $GITHUB_STEP_SUMMARY
+        else
+          echo "No bug report generated" >> $GITHUB_STEP_SUMMARY
+        fi
 
 
-      # 📄 Upload AI bug report
-      - name: Upload Bug Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-bug-report
-          path: reports/bug-report.json
-          if-no-files-found: warn
+    # 📦 Upload artifacts
+    - name: Upload Full Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: full-report
+        path: reports/
+
+
+    - name: Upload AI Bug Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ai-bug-report
+        path: reports/ai/bug-report.json
+        if-no-files-found: warn
