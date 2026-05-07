@@ -24,14 +24,15 @@ export default defineConfig({
   reporter: [
     ['list'],
 
-    // ✅ REQUIRED FOR MERGE REPORTS
+    // ✅ REQUIRED FOR PLAYWRIGHT MERGE REPORTS
     [
       'blob',
       {
-        outputDir: `blob-report-${shard}`
+        outputDir: 'blob-report'
       }
     ],
 
+    // ✅ HTML REPORT
     [
       'html',
       {
@@ -40,6 +41,7 @@ export default defineConfig({
       }
     ],
 
+    // ✅ JSON REPORT
     [
       'json',
       {
@@ -61,6 +63,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+
       use: {
         ...devices['Desktop Chrome']
       }

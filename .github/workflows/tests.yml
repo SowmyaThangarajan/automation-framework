@@ -160,7 +160,7 @@ jobs:
         with:
           name: shard-${{ matrix.shard }}
           path: |
-            blob-report-*/
+            blob-report/
             playwright-report-*/
             results/
           if-no-files-found: warn
@@ -218,16 +218,16 @@ jobs:
         run: |
           mkdir -p all-blob-reports
 
-          find reports -type d -name "blob-report*" \
-            -exec cp -r {}/* all-blob-reports/ \;
+          find reports -type f -name "*.zip" \
+            -exec cp {} all-blob-reports/ \;
 
           echo "================================================="
           echo "MERGE INPUT"
           echo "================================================="
-          find all-blob-reports
+          ls -R all-blob-reports
 
       # =====================================================
-      # VERIFY ZIP FILES EXIST
+      # VERIFY ZIP FILES
       # =====================================================
       - name: Verify Blob ZIP Files
         run: |
@@ -243,7 +243,7 @@ jobs:
         run: |
           npx playwright merge-reports \
             --reporter html \
-            ./all-blob-reports
+            all-blob-reports
 
       # =====================================================
       # VERIFY MERGED REPORT
@@ -270,55 +270,62 @@ jobs:
         run: |
           mkdir -p reports
 
-          node -e "
-            const fs = require('fs');
+          node - <<'EOF'
+          const fs = require('fs');
+          const path = require('path');
 
-            const summary = {
-              generatedAt: new Date().toISOString(),
-              totalPassed: 0,
-              totalFailed: 0,
-              shards: []
-            };
+          const summary = {
+            generatedAt: new Date().toISOString(),
+            totalPassed: 0,
+            totalFailed: 0,
+            totalSkipped: 0,
+            reportFiles: []
+          };
 
-            function scan(dir) {
-              const files = fs.readdirSync(dir, { withFileTypes: true });
+          function scan(dir) {
+            if (!fs.existsSync(dir)) return;
 
-              for (const file of files) {
-                const full = dir + '/' + file.name;
+            const items = fs.readdirSync(dir, { withFileTypes: true });
 
-                if (file.isDirectory()) {
-                  scan(full);
-                } else if (
-                  file.name.endsWith('.json') &&
-                  full.includes('results-')
-                ) {
-                  try {
-                    const data = JSON.parse(
-                      fs.readFileSync(full, 'utf8')
-                    );
+            for (const item of items) {
+              const fullPath = path.join(dir, item.name);
 
-                    summary.shards.push(full);
+              if (item.isDirectory()) {
+                scan(fullPath);
+              } else if (
+                item.name.endsWith('.json') &&
+                item.name.includes('results-')
+              ) {
+                try {
+                  const data = JSON.parse(
+                    fs.readFileSync(fullPath, 'utf8')
+                  );
 
-                    summary.totalPassed +=
-                      data.stats?.expected || 0;
+                  summary.reportFiles.push(fullPath);
 
-                    summary.totalFailed +=
-                      data.stats?.unexpected || 0;
-
-                  } catch (e) {
-                    console.log('Skipping invalid JSON:', full);
+                  if (data.stats) {
+                    summary.totalPassed += data.stats.expected || 0;
+                    summary.totalFailed += data.stats.unexpected || 0;
+                    summary.totalSkipped += data.stats.skipped || 0;
                   }
+
+                } catch (err) {
+                  console.log('Failed parsing:', fullPath);
                 }
               }
             }
+          }
 
-            scan('reports');
+          scan('reports');
 
-            fs.writeFileSync(
-              'reports/execution-summary.json',
-              JSON.stringify(summary, null, 2)
-            );
-          "
+          fs.writeFileSync(
+            'reports/execution-summary.json',
+            JSON.stringify(summary, null, 2)
+          );
+
+          console.log('Execution summary generated');
+          console.log(summary);
+          EOF
 
       # =====================================================
       # VERIFY GENERATED REPORTS
