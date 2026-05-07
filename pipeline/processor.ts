@@ -23,13 +23,14 @@ export async function processFailure(err: any) {
   const aiResult = await analyzeFailure(normalized);
 
   const actions = decideAction(aiResult);
+  const FAILURE_FILE = `reports/shard-${process.env.PW_TEST_SHARD_INDEX}/failures.json`;
 
   // ✅ Persist failure history
   saveFailure({
     ...normalized,
     aiResult,
     actions,
-    tags: aiResult.tags
+    tags: aiResult.tags,
   });
 
   return { normalized, aiResult, actions };
