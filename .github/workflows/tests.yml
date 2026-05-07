@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -30,10 +31,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Node Dependencies
         run: npm ci
 
-      - name: Install Python dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pandas
@@ -49,7 +50,7 @@ jobs:
 
 
   # =========================================================
-  # 🔐 SECURITY
+  # 🔐 SECURITY SCAN
   # =========================================================
   security:
     runs-on: ubuntu-latest
@@ -60,19 +61,23 @@ jobs:
       security-events: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: github/codeql-action/init@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
-      - uses: github/codeql-action/autobuild@v3
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
 
-      - uses: github/codeql-action/analyze@v3
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
 
 
   # =========================================================
-  # 🧪 PLAYWRIGHT TESTS (SHARDED)
+  # 🧪 PLAYWRIGHT TEST EXECUTION (SHARDED)
   # =========================================================
   test:
     runs-on: ubuntu-latest
@@ -84,7 +89,8 @@ jobs:
         shard: [1, 2, 3, 4]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -96,40 +102,58 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Node Dependencies
         run: npm ci
 
-      - name: Install Python dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pandas
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # ✅ IMPORTANT
+      # =====================================================
+      # RUN TESTS
+      # =====================================================
       - name: Run Playwright Tests
         env:
           PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
         run: |
           npx playwright test --shard=${{ matrix.shard }}/4
 
-      # ✅ DEBUG
-      - name: Debug Generated Files
+      # =====================================================
+      # VERIFY GENERATED REPORTS
+      # =====================================================
+      - name: Verify Generated Reports
         if: always()
         run: |
-          echo "==== PLAYWRIGHT REPORTS ===="
+          echo "================================================="
+          echo "PLAYWRIGHT REPORTS"
+          echo "================================================="
           find . -type d -name "playwright-report*"
 
           echo ""
-          echo "==== BLOB REPORTS ===="
+          echo "================================================="
+          echo "BLOB REPORTS"
+          echo "================================================="
           find . -type d -name "blob-report*"
 
           echo ""
-          echo "==== RESULTS ===="
+          echo "================================================="
+          echo "BLOB ZIP FILES"
+          echo "================================================="
+          find . -name "*.zip"
+
+          echo ""
+          echo "================================================="
+          echo "RESULT FILES"
+          echo "================================================="
           find results -type f || true
 
-      # ✅ UPLOAD ARTIFACTS
+      # =====================================================
+      # UPLOAD SHARD ARTIFACTS
+      # =====================================================
       - name: Upload Shard Artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -153,46 +177,64 @@ jobs:
     steps:
 
       # =====================================================
-      # DOWNLOAD
+      # DOWNLOAD REPORTS
       # =====================================================
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
           path: reports
 
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
 
       # =====================================================
-      # DEBUG
+      # DEBUG DOWNLOADED REPORTS
       # =====================================================
       - name: Debug Downloaded Reports
         run: |
-          echo "==== DIRECTORY STRUCTURE ===="
-          find reports -maxdepth 5 -type d
+          echo "================================================="
+          echo "DIRECTORY STRUCTURE"
+          echo "================================================="
+          find reports -maxdepth 6 -type d
 
           echo ""
-          echo "==== FILES ===="
+          echo "================================================="
+          echo "FILES"
+          echo "================================================="
           find reports -type f
 
       # =====================================================
-      # COPY BLOB REPORTS INTO SINGLE DIR
+      # PREPARE BLOB REPORTS
       # =====================================================
       - name: Prepare Blob Reports
         run: |
           mkdir -p all-blob-reports
 
-          find reports -type d -name "blob-report*" -exec cp -r {}/* all-blob-reports/ \;
+          find reports -type d -name "blob-report*" \
+            -exec cp -r {}/* all-blob-reports/ \;
 
-          echo "==== MERGE INPUT ===="
+          echo "================================================="
+          echo "MERGE INPUT"
+          echo "================================================="
           find all-blob-reports
+
+      # =====================================================
+      # VERIFY ZIP FILES EXIST
+      # =====================================================
+      - name: Verify Blob ZIP Files
+        run: |
+          echo "================================================="
+          echo "ZIP FILES"
+          echo "================================================="
+          find all-blob-reports -name "*.zip"
 
       # =====================================================
       # MERGE PLAYWRIGHT REPORTS
@@ -204,11 +246,13 @@ jobs:
             ./all-blob-reports
 
       # =====================================================
-      # VERIFY REPORT
+      # VERIFY MERGED REPORT
       # =====================================================
       - name: Verify Merged Report
         run: |
-          echo "==== PLAYWRIGHT REPORT ===="
+          echo "================================================="
+          echo "MERGED PLAYWRIGHT REPORT"
+          echo "================================================="
           ls -R playwright-report || true
 
       # =====================================================
@@ -231,30 +275,39 @@ jobs:
 
             const summary = {
               generatedAt: new Date().toISOString(),
-              shards: [],
               totalPassed: 0,
-              totalFailed: 0
+              totalFailed: 0,
+              shards: []
             };
 
             function scan(dir) {
               const files = fs.readdirSync(dir, { withFileTypes: true });
 
-              for (const f of files) {
-                const full = dir + '/' + f.name;
+              for (const file of files) {
+                const full = dir + '/' + file.name;
 
-                if (f.isDirectory()) {
+                if (file.isDirectory()) {
                   scan(full);
-                } else if (f.name.endsWith('.json') && full.includes('results-')) {
-
+                } else if (
+                  file.name.endsWith('.json') &&
+                  full.includes('results-')
+                ) {
                   try {
-                    const data = JSON.parse(fs.readFileSync(full, 'utf8'));
+                    const data = JSON.parse(
+                      fs.readFileSync(full, 'utf8')
+                    );
 
                     summary.shards.push(full);
 
-                    summary.totalPassed += data.stats?.expected || 0;
-                    summary.totalFailed += data.stats?.unexpected || 0;
+                    summary.totalPassed +=
+                      data.stats?.expected || 0;
 
-                  } catch {}
+                    summary.totalFailed +=
+                      data.stats?.unexpected || 0;
+
+                  } catch (e) {
+                    console.log('Skipping invalid JSON:', full);
+                  }
                 }
               }
             }
@@ -268,7 +321,23 @@ jobs:
           "
 
       # =====================================================
-      # PUBLISH AI SUMMARY
+      # VERIFY GENERATED REPORTS
+      # =====================================================
+      - name: Verify Final Reports
+        run: |
+          echo "================================================="
+          echo "AI REPORT"
+          echo "================================================="
+          ls -R reports/ai || true
+
+          echo ""
+          echo "================================================="
+          echo "EXECUTION SUMMARY"
+          echo "================================================="
+          cat reports/execution-summary.json || true
+
+      # =====================================================
+      # PUBLISH AI BUG REPORT
       # =====================================================
       - name: Publish AI Summary
         if: always()
@@ -299,9 +368,9 @@ jobs:
           fi
 
       # =====================================================
-      # UPLOAD PLAYWRIGHT REPORT
+      # UPLOAD PLAYWRIGHT HTML REPORT
       # =====================================================
-      - name: Upload Full Report
+      - name: Upload Playwright HTML Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -310,7 +379,7 @@ jobs:
           if-no-files-found: warn
 
       # =====================================================
-      # UPLOAD AI REPORT
+      # UPLOAD AI BUG REPORT
       # =====================================================
       - name: Upload AI Bug Report
         if: always()
