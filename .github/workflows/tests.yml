@@ -8,9 +8,7 @@ on:
 
 jobs:
 
-  # =========================================================
-  # 🔍 CODE QUALITY
-  # =========================================================
+  # 🔍 Code Quality
   quality:
     runs-on: ubuntu-latest
 
@@ -35,9 +33,7 @@ jobs:
         run: npm audit --audit-level=high || true
 
 
-  # =========================================================
-  # 🔐 SECURITY SCAN
-  # =========================================================
+  # 🔐 Security Scan
   security:
     runs-on: ubuntu-latest
     needs: quality
@@ -49,28 +45,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/autobuild@v3
 
-      - name: Analyze
-        uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v3
 
 
-  # =========================================================
-  # 🧪 SHARDED PLAYWRIGHT TESTS
-  # =========================================================
+  # 🧪 Parallel Playwright Tests
   test:
     runs-on: ubuntu-latest
     needs: security
 
     strategy:
       fail-fast: false
-
       matrix:
         shard: [1, 2, 3, 4]
 
@@ -88,46 +78,47 @@ jobs:
       - name: Install Python dependencies
         run: pip3 install pandas
 
-      - name: Install Playwright Browsers
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # ✅ FIX 2
-      # shard env defined BEFORE Playwright config evaluation
+      # ✅ Run shard
       - name: Run Playwright tests (sharded)
         env:
           PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
         run: |
           npx playwright test --shard=${{ matrix.shard }}/4
 
-      # ✅ FIX 5
-      # upload shard-specific reports INCLUDING blob-report
-      - name: Upload shard reports
+      # ✅ Verify blob reports exist
+      - name: Debug generated files
+        if: always()
+        run: |
+          echo "==== GENERATED FILES ===="
+          find . -maxdepth 3 -type d
+          echo ""
+          echo "==== ZIP FILES ===="
+          find . -name "*.zip"
+
+      # ✅ Upload ALL artifacts
+      - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shard-${{ matrix.shard }}
-
           path: |
-            blob-report/
-            playwright-report-${{ matrix.shard }}/
-            test-results/
-            results/
-
-          retention-days: 7
+            blob-report-${{ matrix.shard }}/**
+            playwright-report-${{ matrix.shard }}/**
+            results/**
+          if-no-files-found: warn
 
 
-  # =========================================================
-  # 🚦 QUALITY GATE + REPORT MERGE
-  # =========================================================
+  # 🚦 Quality Gate + Merge Reports
   quality-gate:
-    runs-on: ubuntu-latest
     needs: test
+    runs-on: ubuntu-latest
     if: always()
 
     steps:
-      # -----------------------------------------------------
-      # Download all shard artifacts
-      # -----------------------------------------------------
+      # ✅ Download shard artifacts
       - name: Download all reports
         uses: actions/download-artifact@v4
         with:
@@ -143,71 +134,63 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # -----------------------------------------------------
-      # Debug artifact structure
-      # -----------------------------------------------------
-      - name: Debug downloaded reports
+      # ✅ Debug downloaded artifacts
+      - name: Debug downloaded artifacts
         run: |
           echo "==== DOWNLOADED REPORTS ===="
-          ls -R reports
+          find reports -type d
+          echo ""
+          echo "==== DOWNLOADED FILES ===="
+          find reports -type f
 
-      # -----------------------------------------------------
-      # ✅ FIX 6
-      # Merge Playwright blob reports
-      # -----------------------------------------------------
+      # ✅ Verify blob reports exist
+      - name: Verify blob reports
+        run: |
+          echo "==== BLOB REPORTS ===="
+          find reports -type d -name "blob-report-*"
+
+          echo ""
+          echo "==== BLOB ZIP FILES ===="
+          find reports -name "*.zip"
+
+      # ✅ Merge shard blob reports
       - name: Merge Playwright reports
         run: |
-          find reports -type d -name "blob-report-*" || true
           npx playwright merge-reports --reporter html reports
 
-      # -----------------------------------------------------
-      # Verify merged report exists
-      # -----------------------------------------------------
-      - name: Ensure merged Playwright report exists
+      # ✅ Verify merged report
+      - name: Ensure merged report exists
         run: |
+          echo "==== MERGED REPORT ===="
           ls -R playwright-report || echo "No merged report found"
 
-      # -----------------------------------------------------
-      # Run AI Quality Gate
-      # -----------------------------------------------------
+      # 📊 Run quality gate
       - name: Run Quality Gate
         run: |
           npx ts-node scripts/quality-gate.ts reports
 
-      # -----------------------------------------------------
-      # Upload merged report
-      # -----------------------------------------------------
-      - name: Upload merged Playwright report
+      # 📦 Upload merged report
+      - name: Upload Full Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: full-report
-
           path: |
             playwright-report/
             reports/
+          if-no-files-found: warn
 
-          retention-days: 14
-
-      # -----------------------------------------------------
-      # Upload execution summary
-      # -----------------------------------------------------
-      - name: Upload execution summary
+      # 📄 Upload execution summary
+      - name: Upload Execution Summary
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: execution-summary
-
-          # ⚠️ your script MUST generate this file
-          path: |
-            reports/execution-summary.json
-
+          path: reports/execution-summary.json
           if-no-files-found: warn
 
-      # -----------------------------------------------------
-      # GitHub summary
-      # -----------------------------------------------------
-      - name: Publish execution summary
+      # 📢 Publish execution summary
+      - name: Publish Execution Summary
         if: always()
         run: |
           echo "## 📊 Execution Summary" >> $GITHUB_STEP_SUMMARY
@@ -221,10 +204,8 @@ jobs:
             echo "No execution summary found" >> $GITHUB_STEP_SUMMARY
           fi
 
-      # -----------------------------------------------------
-      # Detailed failure report
-      # -----------------------------------------------------
-      - name: Publish detailed failure report
+      # 🔍 Detailed report
+      - name: Publish Detailed Failure Report
         if: always()
         run: |
           echo "## 🔍 Detailed Failure Report" >> $GITHUB_STEP_SUMMARY
@@ -237,12 +218,3 @@ jobs:
           else
             echo "No detailed report found" >> $GITHUB_STEP_SUMMARY
           fi
-
-      # -----------------------------------------------------
-      # Final debug
-      # -----------------------------------------------------
-      - name: Final report structure
-        if: always()
-        run: |
-          echo "==== FINAL REPORT STRUCTURE ===="
-          ls -R
