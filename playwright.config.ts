@@ -13,22 +13,20 @@ const shardIndex = process.env.PW_TEST_SHARD_INDEX || 'local';
 export default defineConfig({
   testDir: './tests',
 
-  /* 1. Parallel Execution */
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   workers: process.env.CI ? 4 : undefined,
 
-  /* 2. Retry Logic */
   retries: process.env.CI ? 2 : 1,
 
-  /* 3. Reporting */
   reporter: [
     ['list'],
 
-    // ✅ REQUIRED for merge-reports
-    ['blob'],
+    // ✅ REQUIRED FOR merge-reports
+    ['blob', {
+      outputDir: `blob-report-${shardIndex}`
+    }],
 
-    // Optional shard HTML reports
     ['html', {
       outputFolder: `playwright-report-${shardIndex}`,
       open: 'never'
@@ -41,7 +39,6 @@ export default defineConfig({
 
   timeout: process.env.CI ? 15000 : 30000,
 
-  /* 4. Shared Settings */
   use: {
     baseURL: process.env.BASE_URL,
 
@@ -53,7 +50,6 @@ export default defineConfig({
     navigationTimeout: 15000,
   },
 
-  /* 5. Projects */
   projects: [
     {
       name: 'chromium',

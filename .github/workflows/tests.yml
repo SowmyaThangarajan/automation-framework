@@ -157,6 +157,7 @@ jobs:
       # -----------------------------------------------------
       - name: Merge Playwright reports
         run: |
+          find reports -type d -name "blob-report-*" || true
           npx playwright merge-reports --reporter html reports
 
       # -----------------------------------------------------
