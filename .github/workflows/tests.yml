@@ -23,9 +23,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup Python env
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
         run: |
-          python3 -m pip install pandas
+          python -m pip install --upgrade pip
+          python -m pip install pandas          
 
       - name: Lint
         run: npm run lint || true
@@ -126,7 +132,7 @@ jobs:
           find reports -type f
 
       - name: Generate AI Bug Report
-        run: npx ts-node scripts/processReports.ts reports
+        run: npx ts-node utils/processReports.ts reports
 
       - name: Publish AI Summary
         if: always()
