@@ -86,7 +86,8 @@ jobs:
         env:
           PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
         run: |
-          npx playwright test --shard=${{ matrix.shard }}/4
+          npx playwright test --shard=${{ matrix.shard }}/4 \
+            --reporter=list,blob
 
       # ✅ Verify blob reports exist
       - name: Debug generated files
@@ -105,10 +106,9 @@ jobs:
         with:
           name: shard-${{ matrix.shard }}
           path: |
-            blob-report-${{ matrix.shard }}/**
-            playwright-report-${{ matrix.shard }}/**
+            blob-report/**
+            playwright-report/**
             results/**
-          if-no-files-found: warn
 
 
   # 🚦 Quality Gate + Merge Reports
@@ -156,6 +156,7 @@ jobs:
       # ✅ Merge shard blob reports
       - name: Merge Playwright reports
         run: |
+          ls -R reports
           npx playwright merge-reports --reporter html reports
 
       # ✅ Verify merged report

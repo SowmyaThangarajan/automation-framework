@@ -22,11 +22,6 @@ export default defineConfig({
   reporter: [
     ['list'],
 
-    // ✅ REQUIRED FOR merge-reports
-    ['blob', {
-      outputDir: `blob-report-${shardIndex}`
-    }],
-
     ['html', {
       outputFolder: `playwright-report-${shardIndex}`,
       open: 'never'
