@@ -28,7 +28,8 @@ export async function processFailure(err: any) {
   saveFailure({
     ...normalized,
     aiResult,
-    actions
+    actions,
+    tags: aiResult.tags
   });
 
   return { normalized, aiResult, actions };

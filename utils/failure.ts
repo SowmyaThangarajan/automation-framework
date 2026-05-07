@@ -1,12 +1,17 @@
 export type FailureSource = 'api' | 'ui' | 'data' | 'unknown';
 
 export type Failure = {
-  source: FailureSource;
+  source: 'api' | 'ui' | 'data' | 'unknown';
   type: string;
   message: string;
   endpoint?: string;
   status?: number;
   timestamp: string;
+
+  // NEW 👇
+  error?: string;
+  stack?: string;
+  file?: string;
 };
 
 export function createFailure(f: Partial<Failure>): Error {

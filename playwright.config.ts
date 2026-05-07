@@ -25,22 +25,18 @@ export default defineConfig({
   reporter: [
     ['list'],
 
-    // ✅ Unique HTML report per shard
-    [
-      'html',
-      {
-        outputFolder: `playwright-report-${shardIndex}`,
-        open: 'never'
-      }
-    ],
+    // ✅ REQUIRED for merge-reports
+    ['blob'],
 
-    // ✅ Unique JSON report per shard
-    [
-      'json',
-      {
-        outputFile: `results/results-${shardIndex}.json`
-      }
-    ]
+    // Optional shard HTML reports
+    ['html', {
+      outputFolder: `playwright-report-${shardIndex}`,
+      open: 'never'
+    }],
+
+    ['json', {
+      outputFile: `results/results-${shardIndex}.json`
+    }]
   ],
 
   timeout: process.env.CI ? 15000 : 30000,

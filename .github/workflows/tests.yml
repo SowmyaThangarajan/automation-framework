@@ -8,9 +8,12 @@ on:
 
 jobs:
 
-  # 🔍 Code Quality Stage
+  # =========================================================
+  # 🔍 CODE QUALITY
+  # =========================================================
   quality:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -32,10 +35,13 @@ jobs:
         run: npm audit --audit-level=high || true
 
 
-  # 🔐 Security Stage
+  # =========================================================
+  # 🔐 SECURITY SCAN
+  # =========================================================
   security:
     runs-on: ubuntu-latest
     needs: quality
+
     permissions:
       contents: read
       security-events: write
@@ -43,22 +49,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: github/codeql-action/init@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
-      - uses: github/codeql-action/autobuild@v3
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
 
-      - uses: github/codeql-action/analyze@v3
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
 
 
-  # 🧪 Test Execution Stage (SHARDED)
+  # =========================================================
+  # 🧪 SHARDED PLAYWRIGHT TESTS
+  # =========================================================
   test:
     runs-on: ubuntu-latest
     needs: security
 
     strategy:
       fail-fast: false
+
       matrix:
         shard: [1, 2, 3, 4]
 
@@ -76,34 +88,46 @@ jobs:
       - name: Install Python dependencies
         run: pip3 install pandas
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # ✅ Run tests with shard context
+      # ✅ FIX 2
+      # shard env defined BEFORE Playwright config evaluation
       - name: Run Playwright tests (sharded)
         env:
           PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
-        run: npx playwright test --shard=${{ matrix.shard }}/4
+        run: |
+          npx playwright test --shard=${{ matrix.shard }}/4
 
-      # ✅ Upload shard artifacts (ALL report types)
-      - name: Upload reports
+      # ✅ FIX 5
+      # upload shard-specific reports INCLUDING blob-report
+      - name: Upload shard reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shard-${{ matrix.shard }}
+
           path: |
-            blob-report-${{ matrix.shard }}/
+            blob-report/
             playwright-report-${{ matrix.shard }}/
+            test-results/
             results/
 
+          retention-days: 7
 
-  # 🚦 Quality Gate + Merge Reports
+
+  # =========================================================
+  # 🚦 QUALITY GATE + REPORT MERGE
+  # =========================================================
   quality-gate:
-    needs: test
     runs-on: ubuntu-latest
+    needs: test
     if: always()
 
     steps:
+      # -----------------------------------------------------
+      # Download all shard artifacts
+      # -----------------------------------------------------
       - name: Download all reports
         uses: actions/download-artifact@v4
         with:
@@ -119,54 +143,87 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ✅ REQUIRED: merge blob reports into single Playwright report
-      - name: Merge Playwright reports
-        run: npx playwright merge-reports --reporter html reports
-
+      # -----------------------------------------------------
+      # Debug artifact structure
+      # -----------------------------------------------------
       - name: Debug downloaded reports
-        run: ls -R reports
+        run: |
+          echo "==== DOWNLOADED REPORTS ===="
+          ls -R reports
 
-      # 📊 Run Quality Gate Logic
+      # -----------------------------------------------------
+      # ✅ FIX 6
+      # Merge Playwright blob reports
+      # -----------------------------------------------------
+      - name: Merge Playwright reports
+        run: |
+          npx playwright merge-reports --reporter html reports
+
+      # -----------------------------------------------------
+      # Verify merged report exists
+      # -----------------------------------------------------
+      - name: Ensure merged Playwright report exists
+        run: |
+          ls -R playwright-report || echo "No merged report found"
+
+      # -----------------------------------------------------
+      # Run AI Quality Gate
+      # -----------------------------------------------------
       - name: Run Quality Gate
-        run: npx ts-node scripts/quality-gate.ts reports
+        run: |
+          npx ts-node scripts/quality-gate.ts reports
 
-
-      # 📦 Upload merged Playwright report
-      - name: Upload Full Report
+      # -----------------------------------------------------
+      # Upload merged report
+      # -----------------------------------------------------
+      - name: Upload merged Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: full-report
+
           path: |
             playwright-report/
             reports/
 
+          retention-days: 14
 
-      # 📄 Upload execution summary
-      - name: Upload Execution Summary
+      # -----------------------------------------------------
+      # Upload execution summary
+      # -----------------------------------------------------
+      - name: Upload execution summary
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: execution-summary
-          path: reports/execution-summary.json
 
+          # ⚠️ your script MUST generate this file
+          path: |
+            reports/execution-summary.json
 
-      # 📢 GitHub Summary
-      - name: Publish Execution Summary
+          if-no-files-found: warn
+
+      # -----------------------------------------------------
+      # GitHub summary
+      # -----------------------------------------------------
+      - name: Publish execution summary
         if: always()
         run: |
           echo "## 📊 Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f reports/execution-summary.json ]; then
-            cat reports/execution-summary.json >> $GITHUB_STEP_SUMMARY
+          FILE=$(find reports -name "execution-summary.json" | head -n 1)
+
+          if [ -f "$FILE" ]; then
+            cat "$FILE" >> $GITHUB_STEP_SUMMARY
           else
             echo "No execution summary found" >> $GITHUB_STEP_SUMMARY
           fi
 
-
-      # 🔍 Detailed Report
-      - name: Publish Detailed Report
+      # -----------------------------------------------------
+      # Detailed failure report
+      # -----------------------------------------------------
+      - name: Publish detailed failure report
         if: always()
         run: |
           echo "## 🔍 Detailed Failure Report" >> $GITHUB_STEP_SUMMARY
@@ -180,13 +237,11 @@ jobs:
             echo "No detailed report found" >> $GITHUB_STEP_SUMMARY
           fi
 
-
-      # 📁 Debug structure
-      - name: Debug reports structure
+      # -----------------------------------------------------
+      # Final debug
+      # -----------------------------------------------------
+      - name: Final report structure
+        if: always()
         run: |
-          echo "==== REPORT STRUCTURE ===="
-          ls -R reports
-
-      - name: Ensure Playwright report exists
-        run: |
-          ls -R playwright-report || echo "No merged report found"
+          echo "==== FINAL REPORT STRUCTURE ===="
+          ls -R

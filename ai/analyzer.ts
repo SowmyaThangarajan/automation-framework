@@ -1,98 +1,123 @@
 import fs from 'fs';
 
-type Failure = any;
+export type RootCause =
+  | 'Infra'
+  | 'Flaky UI'
+  | 'API Regression'
+  | 'Data Issue'
+  | 'Test Bug'
+  | 'Environment Issue'
+  | 'Unknown';
 
-type AIResult = {
-  type: 'Flaky' | 'Infra' | 'API' | 'Data Issue' | 'Unknown';
+export type AIResult = {
+  type: RootCause;
   confidence: number;
   reason: string;
+  tags: string[];
 };
 
 /* -----------------------------
-   RULE-BASED FALLBACK (FAST + RELIABLE)
+   RULE-BASED ANALYSIS (FAST + RELIABLE)
 ------------------------------ */
-function ruleBasedAnalysis(failure: Failure): AIResult {
+function ruleBasedAnalysis(failure: any): AIResult {
   const msg = (failure.message || '').toLowerCase();
   const error = (failure.error || '').toLowerCase();
+  const status = failure.status;
 
-  if (error.includes('timeout') || error.includes('network')) {
+  const combined = `${msg} ${error}`;
+
+  // ---------------- Infra issues ----------------
+  const isTimeout =
+    combined.includes('timeout') ||
+    combined.includes('timed out') ||
+    combined.includes('navigation timeout');
+
+  const isNetwork =
+    combined.includes('network') ||
+    combined.includes('fetch') ||
+    combined.includes('econnreset') ||
+    combined.includes('socket');
+
+  if (isTimeout || isNetwork) {
     return {
       type: 'Infra',
-      confidence: 85,
-      reason: 'Network/timeout issue detected'
+      confidence: 88,
+      reason: 'Network or timeout-related failure detected',
+      tags: ['timeout', 'network']
     };
   }
 
-  if (error.includes('500') || failure.status >= 500) {
+  // ---------------- API failures ----------------
+  if (status >= 500 || combined.includes('500') || combined.includes('502') || combined.includes('503')) {
     return {
-      type: 'API',
-      confidence: 90,
-      reason: 'Server error'
+      type: 'API Regression',
+      confidence: 92,
+      reason: 'Server-side API error detected',
+      tags: ['api', 'server-error']
     };
   }
 
-  if (error.includes('schema') || error.includes('validation')) {
+  // ---------------- Data issues ----------------
+  const isDataIssue =
+    combined.includes('schema') ||
+    combined.includes('validation') ||
+    combined.includes('invalid json') ||
+    combined.includes('type mismatch');
+
+  if (isDataIssue) {
     return {
       type: 'Data Issue',
       confidence: 95,
-      reason: 'Schema/data validation failure'
+      reason: 'Schema or data validation failure',
+      tags: ['schema', 'validation']
     };
   }
 
-  if (msg.includes('element not found')) {
+  // ---------------- Flaky UI ----------------
+  const isFlakyUI =
+    combined.includes('element not found') ||
+    combined.includes('locator') ||
+    combined.includes('detached') ||
+    combined.includes('stale element') ||
+    combined.includes('strict mode violation');
+
+  if (isFlakyUI) {
     return {
-      type: 'Flaky',
-      confidence: 70,
-      reason: 'UI locator instability'
+      type: 'Flaky UI',
+      confidence: 75,
+      reason: 'UI locator instability or timing issue',
+      tags: ['ui', 'locator', 'flaky']
     };
   }
 
+  // ---------------- Environment issues ----------------
+  if (combined.includes('permission') || combined.includes('denied') || combined.includes('env')) {
+    return {
+      type: 'Environment Issue',
+      confidence: 70,
+      reason: 'Environment or permission issue detected',
+      tags: ['env']
+    };
+  }
+
+  // ---------------- Unknown ----------------
   return {
     type: 'Unknown',
     confidence: 50,
-    reason: 'No clear pattern'
+    reason: 'No matching failure pattern found',
+    tags: ['unknown']
   };
 }
 
 /* -----------------------------
-   OPTIONAL: LLM CALL
+   OPTIONAL LLM CLASSIFIER
 ------------------------------ */
-async function callLLM(failure: Failure): Promise<AIResult | null> {
+async function callLLM(failure: any): Promise<AIResult | null> {
   try {
-    // ⚠️ Replace with real OpenAI call
-    // Example using fetch (pseudo)
-
-    /*
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "Classify test failures into Infra, Flaky, API, Data Issue"
-          },
-          {
-            role: "user",
-            content: JSON.stringify(failure)
-          }
-        ]
-      })
-    });
-
-    const data = await res.json();
-    const text = data.choices[0].message.content;
-
-    return JSON.parse(text);
-    */
-
-    return null; // fallback for now
+    // Replace with real OpenAI integration if needed
+    return null;
   } catch (err) {
-    console.error("LLM failed, falling back to rules");
+    console.error('LLM failed, falling back to rules');
     return null;
   }
 }
@@ -100,19 +125,17 @@ async function callLLM(failure: Failure): Promise<AIResult | null> {
 /* -----------------------------
    MAIN ANALYZER
 ------------------------------ */
-export async function analyzeFailure(failure: Failure): Promise<AIResult> {
-  // 1. Try LLM (if enabled)
+export async function analyzeFailure(failure: any): Promise<AIResult> {
+  // 1. Try LLM first (if enabled)
   const ai = await callLLM(failure);
 
   if (ai && ai.confidence > 60) {
-    console.log("🤖 LLM classification used");
-    return ai;
+    return {
+      ...ai,
+      tags: ai.tags || []
+    };
   }
 
-  // 2. Fallback to deterministic logic
-  const fallback = ruleBasedAnalysis(failure);
-
-  console.log("🧠 Rule-based classification used");
-
-  return fallback;
+  // 2. Rule-based fallback
+  return ruleBasedAnalysis(failure);
 }
