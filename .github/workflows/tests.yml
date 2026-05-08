@@ -216,12 +216,15 @@ jobs:
       # =====================================================
       - name: Prepare Blob Reports
         run: |
+          rm -rf all-blob-reports
           mkdir -p all-blob-reports
 
-          find reports -type d -name "blob-report*" -exec cp -r {}/* all-blob-reports/ \;
+          echo "Copying ZIP files..."
 
-          echo "=== CHECK ZIP FILES ==="
-          find all-blob-reports -type f
+          find reports -type f -name "*.zip" -exec cp {} all-blob-reports/ \;
+
+          echo "=== ALL ZIP FILES ==="
+          ls -R all-blob-reports
 
       # =====================================================
       # VERIFY ZIP FILES
@@ -240,7 +243,7 @@ jobs:
         run: |
           npx playwright merge-reports \
             --reporter html \
-            all-blob-reports
+             all-blob-reports
 
       # =====================================================
       # VERIFY MERGED REPORT
