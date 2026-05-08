@@ -29,14 +29,6 @@ export default defineConfig({
       {
         outputDir: `blob-report-${shard}`
       }
-    ],
-
-    [
-      'html',
-      {
-        outputFolder: `playwright-report-${shard}`,
-        open: 'never'
-      }
     ]
   ],
 

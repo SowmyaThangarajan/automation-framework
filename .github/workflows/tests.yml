@@ -218,12 +218,10 @@ jobs:
         run: |
           mkdir -p all-blob-reports
 
-          echo "Searching for blob zip files..."
+          find reports -type d -name "blob-report*" -exec cp -r {}/* all-blob-reports/ \;
 
-          find reports -type f -name "*.zip" -exec cp {} all-blob-reports/ \;
-
-          echo "==== MERGE INPUT ===="
-          ls -R all-blob-reports || true
+          echo "=== CHECK ZIP FILES ==="
+          find all-blob-reports -type f
 
       # =====================================================
       # VERIFY ZIP FILES
@@ -240,7 +238,9 @@ jobs:
       # =====================================================
       - name: Merge Playwright Reports
         run: |
-          npx playwright merge-reports ./all-blob-reports --reporter html
+          npx playwright merge-reports \
+            --reporter html \
+            all-blob-reports
 
       # =====================================================
       # VERIFY MERGED REPORT
