@@ -24,28 +24,19 @@ export default defineConfig({
   reporter: [
     ['list'],
 
-    // ✅ REQUIRED FOR PLAYWRIGHT MERGE REPORTS
+    // ✅ REQUIRED for merge-reports
     [
       'blob',
       {
-        outputDir: 'blob-report'
+        outputDir: `blob-report-${shard}`
       }
     ],
 
-    // ✅ HTML REPORT
     [
       'html',
       {
         outputFolder: `playwright-report-${shard}`,
         open: 'never'
-      }
-    ],
-
-    // ✅ JSON REPORT
-    [
-      'json',
-      {
-        outputFile: `results/results-${shard}.json`
       }
     ]
   ],
