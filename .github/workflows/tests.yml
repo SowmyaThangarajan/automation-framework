@@ -218,7 +218,7 @@ jobs:
         run: |
           mkdir -p all-blob-reports
 
-          echo "Copying blob zip files..."
+          echo "Searching for blob zip files..."
 
           find reports -type f -name "*.zip" -exec cp {} all-blob-reports/ \;
 

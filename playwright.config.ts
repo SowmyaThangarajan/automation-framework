@@ -24,7 +24,6 @@ export default defineConfig({
   reporter: [
     ['list'],
 
-    // ✅ REQUIRED for merge-reports
     [
       'blob',
       {
