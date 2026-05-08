@@ -24,12 +24,18 @@ export default defineConfig({
   reporter: [
     ['list'],
 
-    [
-      'blob',
-      {
-        outputDir: `blob-report-${shard}`
-      }
-    ]
+    ['blob', {
+      outputDir: `blob-report-${shard}`
+    }],
+
+    ['html', {
+      outputFolder: `playwright-report-${shard}`,
+      open: 'never'
+    }],
+
+    ['json', {
+      outputFile: `results/results-${shard}.json`
+    }]
   ],
 
   use: {

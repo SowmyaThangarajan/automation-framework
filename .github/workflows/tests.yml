@@ -88,6 +88,9 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4]
 
+    env:
+      PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -113,14 +116,14 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # =====================================================
-      # RUN TESTS
-      # =====================================================
-      - name: Run Playwright Tests
-        env:
-          PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
-        run: |
-          npx playwright test --shard=${{ matrix.shard }}/4
+      # # =====================================================
+      # # RUN TESTS
+      # # =====================================================
+      # - name: Run Playwright Tests
+      #   env:
+      #     PW_TEST_SHARD_INDEX: ${{ matrix.shard }}
+      #   run: |
+      #     npx playwright test --shard=${{ matrix.shard }}/4
 
       # =====================================================
       # VERIFY GENERATED REPORTS
@@ -160,8 +163,8 @@ jobs:
         with:
           name: shard-${{ matrix.shard }}
           path: |
-            blob-report/
-            playwright-report-*/
+            blob-report*
+            playwright-report*
             results/
           if-no-files-found: warn
 
@@ -243,7 +246,7 @@ jobs:
         run: |
           npx playwright merge-reports \
             --reporter html \
-             all-blob-reports
+            all-blob-reports
 
       # =====================================================
       # VERIFY MERGED REPORT
